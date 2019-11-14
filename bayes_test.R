@@ -41,7 +41,8 @@ load_no_ac <- rnorm(n_days, 0, 1.05^(1/252)-1 ) %>%
   mutate(trend = cumsum(fator_ewma * persistence)/cumsum(fator_ewma)) %>%
   mutate(load_no_ac = cumprod((1 + trend) * (1 + noise) ) ) %>%
   inner_join(daily_means, by = c("id")) %>% 
-  mutate(pop = map( .x = NA,   .f = ~ rbeta(n_pop, shape1 = 1.5, shape2 = 3 ) * 10 + 22  )) %>% 
+  mutate(shape1 = 1.5, shape2 = 3) %>% 
+  mutate(pop = map2( .x = shape1, .y = shape2, .f = ~ rbeta(n_pop, shape1 = .x, shape2 = .y ) * 10 + 22 )) %>% 
   unnest(pop) %>% 
   mutate(line = row_number()) %>% 
   inner_join(aleat, by = c("line")) %>%
@@ -59,6 +60,17 @@ load_no_ac <- rnorm(n_days, 0, 1.05^(1/252)-1 ) %>%
 ggplot(load_no_ac, aes(x = air_temp, y = turned_on)) +
   geom_point() +
   geom_smooth()
+
+
+
+
+
+
+
+
+
+
+
 
 
 
