@@ -1,47 +1,67 @@
 
-data <- rbeta(n = 1000, shape1 = 1.5, shape2 = 3) %>% 
-  enframe(value = "trigger") 
+library(tidyverse)
+library(rstan)
 
-temperaturas <- rnorm(1000, mean = 0.5, sd = 0.3 ) %>% 
-  enframe(value = "temperatura")
+options(mc.cores = parallel::detectCores())
 
-# data %<>% 
-#   inner_join(temperaturas) %>% 
-#   mutate(carga = (temperatura > trigger) * 1 ) %>% 
-#   mutate(diff = temperatura - trigger )
+rstan_options(auto_write = TRUE)
 
-data_1 <- 1:100 %>% 
-  enframe(value = "dia") %>% 
-  mutate(shape1 = 1.5, shape2 = 3) %>% 
-  mutate(carga_1 = map2( .x = shape1, .y = shape2, .f = ~ rbeta(100, shape1 = 1.5, shape2 = 3 ) )) %>% 
-  unnest(cols = c(carga_1)) %>% 
-  group_by(dia) %>% 
-  summarise(carga_1 = sum(carga_1) ) 
+Sys.setenv(LOCAL_CPPFLAGS = '-march=corei7')
 
-data_2 <- 1:100 %>% 
-  enframe(value = "dia") %>% 
-  mutate(shape1 = 1.5, shape2 = 3) %>% 
-  mutate(carga_2 = map2( .x = shape1, .y = shape2, .f = ~ rbeta(50, shape1 = 4, shape2 = 5 ) )) %>% 
-  unnest(cols = c(carga_2)) %>% 
-  group_by(dia) %>% 
-  summarise(carga_2 = sum(carga_2) )
+alpha <- 1
+beta <- 8
 
-data <- data_1 %>% 
-  inner_join(data_2, by = c("dia")) %>% 
-  mutate(carga_total = carga_1 + carga_2)
-  
+sample_betas <- rbeta(10000, alpha, beta)
+
+cdf_betas <- ecdf(sample_betas)
+# 
+# data_1 <- 1:100 %>% 
+#   enframe(value = "dia") %>% 
+#   mutate(
+#     low = 0 ,
+#     high = 1
+#   ) %>% 
+#   mutate( temp = map2_dbl(.x = low ,  .y = high, .f = ~runif(1, low, high)   )  ) %>% 
+#   mutate( beta )
+#   View()
+#   
+#   
+#   
+# 
+# data_2 <- 1:100 %>% 
+#   enframe(value = "dia") %>% 
+#   mutate(shape1 = 4, shape2 = 5) %>% 
+#   mutate(carga_2 = map2( .x = shape1, .y = shape2, .f = ~ rbeta(2, shape1 = .x, shape2 = .y ) )) %>% 
+#   unnest(cols = c(carga_2)) %>% 
+#   group_by(dia) %>% 
+#   summarise(carga_2 = sum(carga_2) )
+# 
+# data <- data_1 %>% 
+#   inner_join(data_2, by = c("dia")) %>% 
+#   mutate(carga_total = (carga_1 + carga_2)/2)
+#   
+# 
+# 
+# 
+# data_stan <- list(
+#   n_dias = 100,
+#   n_pop_1 = 4,
+#   n_pop_2 = 2,
+#   carga_total = data$carga_total
+# )
+# 
+# 
+# fit <- stan(file = "simple_test2.stan", data = data_stan)
+# 
+# print(fit)
+# 
 
 
-data_stan <- list(
-  N = 1000,
-  trigger = data$trigger,
-  temperatura = data$temperatura,
-  carga = data$carga
-)
+seq(0,1,0.01) %>% 
+  enframe(value = "x") %>% 
+  mutate(y = cdf_betas(x)) %>% 
+  ggplot() +
+  geom_line(aes(x = x, y = y))
 
-
-fit <- stan(file = "simple_test.stan", data = data_stan)
-
-print(fit)
 
 
