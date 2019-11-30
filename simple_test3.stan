@@ -12,6 +12,9 @@ parameters {
   real<lower = 0> alpha;
   real<lower = 0> beta;
   real<lower = 0> sigma;
+  real<lower = 0> low;
+  real<lower = 0> scale;
+  
 
 }
 
@@ -23,8 +26,14 @@ model {
   alpha ~ uniform(0,10);
   beta ~ uniform(0,10);
   sigma ~ uniform(0.0,0.5);
-  for(i in 1:n_dias)
-    target += normal_lpdf(on[i] | beta_cdf(temp[i], alpha, beta), sigma);
-
+  low ~ uniform(20,30);
+  scale ~ uniform(5,15);
+  for(i in 1:n_dias){
+    target += normal_lpdf(on[i] | beta_cdf(fmax(fmin((temp[i]-low)/scale,0.99),0.01), alpha, beta), sigma);
+    print(low);
+    print(scale);
+    print(temp[i]);
+    print(fmax(fmin((temp[i]-low)/scale,0.99),0.01));
+  }
 }
 

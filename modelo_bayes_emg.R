@@ -1,7 +1,7 @@
 
 library(tidyverse)
 library(rstan)
-library(emg)
+library(sn)
 
 options(mc.cores = parallel::detectCores())
 
@@ -9,10 +9,9 @@ rstan_options(auto_write = TRUE)
 
 Sys.setenv(LOCAL_CPPFLAGS = '-march=corei7')
 
-alpha <- 3
-beta <- 2
 
-sample_betas <- rbeta(10000, alpha, beta)
+ 
+
 
 cdf_betas <- ecdf(sample_betas)
 
