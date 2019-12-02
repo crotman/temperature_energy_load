@@ -10,7 +10,7 @@ rstan_options(auto_write = TRUE)
 Sys.setenv(LOCAL_CPPFLAGS = '-march=corei7')
 
 
-sample_sn <- rsn(10000,  xi = 27, omega = 3, alpha = 3)
+sample_sn <- rsn(10000,  xi = 29.5, omega = 4.76, alpha = 0)
 
 
 

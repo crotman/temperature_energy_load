@@ -9,9 +9,9 @@ data {
 // accepts two parameters 'mu' and 'sigma'.
 parameters {
   
-  real xi;
-  real<lower=0> omega;
-  real alpha;
+  real<lower=15, upper=40> xi;
+  real<lower=0, upper=30> omega;
+  real<lower=-30, upper=30> alpha;
   real<lower = 0> sigma;
   
 
@@ -22,10 +22,6 @@ parameters {
 // and standard deviation 'sigma'.
 model {
 
-  xi ~ normal(27,100);
-  omega ~ normal(2,100);
-  alpha ~ normal(3,100);
-  sigma ~ uniform(0.01,0.05);
   /*
   {
     vector[n_dias] summands;
@@ -36,8 +32,23 @@ model {
   }
   */
 
-  for(i in 1:n_dias)  
-    on[i] ~ normal(skew_normal_cdf(temp[i], xi, omega, alpha), sigma);
+  for(i in 1:n_dias){
+    xi ~ uniform(20,30);
+    omega ~ uniform(0.1,20);
+    alpha ~ uniform(-20,20);
+    sigma ~ uniform(0.01,0.20);
+    target += normal_lpdf(on[i] | skew_normal_cdf(temp[i], xi, omega, alpha), sigma);
+    /*
+    print(i)
+    print("temp:",temp[i]);
+    print("on:",on[i]);
+    print("xi:",xi);
+    print("omega:",omega);
+    print("alpha:",alpha);
+    print("skew_normal:",skew_normal_cdf(temp[i], xi, omega, alpha), sigma);
+    */
+  }
+    
 
 }
 
