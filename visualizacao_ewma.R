@@ -1,5 +1,5 @@
 
-sample_sn <- rsn(10000,  xi = 26.24, omega = 6.23, alpha = 0.83)
+sample_sn <- rsn(10000,  xi = 26.50, omega = 4.73, alpha = 0.76)
 
 
 sample_sn %>%

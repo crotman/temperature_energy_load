@@ -35,7 +35,7 @@ model {
   for(i in 1:n_dias){
     xi ~ uniform(20,30);
     omega ~ uniform(0.1,20);
-    alpha ~ uniform(-20,20);
+    alpha ~ uniform(-5,5);
     sigma ~ uniform(0.01,0.20);
     target += normal_lpdf(on[i] | skew_normal_cdf(temp[i], xi, omega, alpha), sigma);
     /*
