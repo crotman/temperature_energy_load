@@ -11,11 +11,10 @@ Sys.setenv(LOCAL_CPPFLAGS = '-march=corei7')
 
 
 data <- read_rds("dados_rj.rds") %>% 
-  select(temp_comp_media, erro) %>% 
-  filter( erro > 0.0001 ) %>% 
+  select(temp_comp_media, erro_uf) %>%
   filter(!is.na(temp_comp_media)) %>% 
-  filter(!is.na(erro)) %>% 
-  mutate(on = erro /  max(erro + 0.0001 ) ) %>% 
+  filter(!is.na(erro_uf)) %>% 
+  mutate(on = (erro_uf - min(erro_uf)) / (max(erro_uf)-min(erro_uf)) ) %>% 
   rename(temp = temp_comp_media) 
 
 
@@ -35,7 +34,7 @@ data_stan <- list(
 
 
 initf1 <- function() {
-  list(xi = runif(1,20,30), omega = runif(1,0.1,20), alpha = runif(1,-20,20), sigma = runif(1,0.1,0.20))
+  list(xi = runif(1,20,30), omega = runif(1,0.1,20), alpha = runif(1,-5,5), sigma = runif(1,0.1,0.20))
 }
 
 
@@ -53,4 +52,6 @@ fit <- stan(
 )
 
 print(fit)
+
+write_rds(fit,"fit_with_negatives.rds")
 
